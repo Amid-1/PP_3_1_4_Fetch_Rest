@@ -1,13 +1,19 @@
+
+<!-- error.html -->
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Ошибка</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <body>
-<h1>Произошла ошибка</h1>
-<p>Извините, произошла ошибка при обработке вашего запроса.</p>
-<p th:if="${exception != null}" th:text="${exception.message}"></p>
-<a href="/">Вернуться на главную</a>
+<section layout:fragment="content">
+    <div class="d-flex align-items-center justify-content-center vh-100 bg-light">
+        <div class="alert alert-danger text-center p-4 shadow rounded" role="alert">
+            <h4 class="alert-heading">Произошла ошибка</h4>
+            <p>Извините, произошла ошибка при обработке вашего запроса.</p>
+            <p th:if="${exception != null}" th:text="${exception.message}"></p>
+            <a href="/" class="btn btn-outline-danger mt-3">Вернуться на главную</a>
+        </div>
+    </div>
+</section>
 </body>
 </html>

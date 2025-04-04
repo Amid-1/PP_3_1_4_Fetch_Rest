@@ -1,5 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -8,7 +10,9 @@ import ru.kata.spring.boot_security.demo.dto.*;
 import ru.kata.spring.boot_security.demo.mapper.UserMapper;
 import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.service.UserService;
+
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -28,11 +32,15 @@ public class UserController {
     }
 
     @GetMapping
-    public String listUsers(Model model) {
+    public String listUsers(Model model, Principal principal) {
         model.addAttribute("userDtos", userService.getAllUsers());
         model.addAttribute("userForm", new UserFormCreateDto());
         model.addAttribute("roles", roleRepository.findAll());
-        return "users";
+
+        UserDetails userDetails = (UserDetails) ((Authentication) principal).getPrincipal();
+        model.addAttribute("user", userDetails);
+
+        return "admin";
     }
 
     @PostMapping("/save")
@@ -43,7 +51,7 @@ public class UserController {
             model.addAttribute("userDtos", userService.getAllUsers());
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("userForm", userForm);
-            return "users";
+            return "admin"; // 🔧 исправлено с "users" на "admin"
         }
         userService.createUser(userForm);
         return "redirect:/admin";
@@ -56,7 +64,7 @@ public class UserController {
         if (result.hasErrors()) {
             model.addAttribute("userDtos", userService.getAllUsers());
             model.addAttribute("roles", roleRepository.findAll());
-            return "users";
+            return "admin"; // 🔧 исправлено с "users" на "admin"
         }
         userService.updateUser(userDto);
         return "redirect:/admin";
@@ -67,19 +75,21 @@ public class UserController {
         Long id = userDto.getId();
         if (id == null) {
             model.addAttribute("error", "Ошибка: ID пользователя не передан.");
-            return "users";
+            return "admin"; // 🔧 исправлено с "users" на "admin"
         }
 
         try {
             userService.deleteUser(id);
         } catch (Exception e) {
             model.addAttribute("error", "Не удалось удалить пользователя: " + e.getMessage());
-            return "users";
+            return "admin"; // 🔧 исправлено с "users" на "admin"
         }
 
         return "redirect:/admin";
     }
 
+    // ❓ Используешь ли отдельную страницу редактирования?
+    // Если нет — этот метод можно удалить
     @GetMapping("/edit/{id}")
     public String editUser(@PathVariable Long id, Model model) {
         UserFormUpdateDto userDto = userMapper.toUpdateDto(userService.getUserById(id));

@@ -1,24 +1,35 @@
-<h2>Регистрация</h2>
-<form th:action="@{/admin/register}" method="post" th:object="${userDto}">
-    <input type="text" th:field="*{username}" placeholder="Имя пользователя"/><br>
-    <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
-
-    <input type="text" th:field="*{lastName}" placeholder="Фамилия"/><br>
-    <p th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
-
-    <input type="email" th:field="*{email}" placeholder="Email"/><br>
-    <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
-
-    <input type="password" th:field="*{password}" placeholder="Пароль"/><br>
-    <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
-
-    <label>Роли:</label>
-    <select multiple th:field="*{roleIds}">
-        <option th:each="role : ${roles}"
-                th:value="${role.id}"
-                th:text="${#strings.replace(role.name, 'ROLE_', '')}">Роль</option>
-    </select>
-    <p th:if="${#fields.hasErrors('roleIds')}" th:errors="*{roleIds}"></p>
-
-    <button type="submit">Зарегистрироваться</button>
-</form>
+<!-- register.html -->
+<section xmlns:th="http://www.thymeleaf.org"
+         xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+         layout:decorate="~{layout}">
+    <div layout:fragment="content">
+        <h2 class="text-center">Register</h2>
+        <form th:action="@{/admin/register}" method="post" th:object="${userDto}" class="mx-auto mt-4" style="max-width: 500px;">
+            <div class="mb-3">
+                <input type="text" th:field="*{username}" class="form-control" placeholder="First Name"/>
+                <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+            </div>
+            <div class="mb-3">
+                <input type="text" th:field="*{lastName}" class="form-control" placeholder="Last Name"/>
+                <div class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+            </div>
+            <div class="mb-3">
+                <input type="email" th:field="*{email}" class="form-control" placeholder="Email"/>
+                <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+            <div class="mb-3">
+                <input type="password" th:field="*{password}" class="form-control" placeholder="Password"/>
+                <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Roles</label>
+                <select multiple th:field="*{roleIds}" class="form-select">
+                    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${#strings.replace(role.name, 'ROLE_', '')}">Role</option>
+                </select>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-success">Register</button>
+            </div>
+        </form>
+    </div>
+</section>

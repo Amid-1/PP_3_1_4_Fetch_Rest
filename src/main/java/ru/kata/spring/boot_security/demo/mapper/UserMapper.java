@@ -29,6 +29,10 @@ public class UserMapper {
         dto.setLastName(user.getLastName());
         dto.setEmail(user.getEmail());
         dto.setRoleIds(toRoleIds(user.getRoles()));
+        dto.setRoles(user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList()));
+
         return dto;
     }
 

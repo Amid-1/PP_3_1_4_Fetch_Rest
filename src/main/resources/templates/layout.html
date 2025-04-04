@@ -1,0 +1,62 @@
+<!-- layout.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title layout:fragment="title">My App</title>
+
+    <!-- ✅ Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+        .navbar span {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- 🔐 Top Navbar -->
+<nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-text text-white fw-bold"
+          th:if="${#authorization.expression('isAuthenticated()')}"
+          th:text="${#authentication.name + ' with roles: ' + #authentication.authorities}"></span>
+    <form th:action="@{/logout}" method="post" class="ms-auto">
+        <button type="submit" class="btn btn-outline-light">Logout</button>
+    </form>
+</nav>
+
+<!-- 💻 Layout -->
+<div class="container-fluid">
+    <div class="row">
+        <!-- 🧭 Sidebar menu (visible only for authenticated users) -->
+        <div class="col-md-2 bg-white border-end p-0"
+             th:if="${#authorization.expression('isAuthenticated()')}">
+            <div class="list-group list-group-flush">
+                <a href="/admin" class="list-group-item list-group-item-action">Admin</a>
+                <a href="/user" class="list-group-item list-group-item-action">User</a>
+            </div>
+        </div>
+
+        <!-- 🧱 Main content -->
+        <main class="col"
+              th:classappend="${#authorization.expression('isAuthenticated()')} ? 'col-md-10' : 'col-12'"
+              layout:fragment="content">
+            <p>Default content</p>
+        </main>
+    </div>
+</div>
+
+<!-- ✅ Bootstrap JS Bundle (включает Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

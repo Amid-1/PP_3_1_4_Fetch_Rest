@@ -2,17 +2,20 @@ package ru.kata.spring.boot_security.demo.dto;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class UserDto {
+
     private Long id;
     private String username;
     private String lastName;
     private String email;
     private String password;
     private List<Long> roleIds;
+    private List<String> roles;
 
     public UserDto() {}
+
+    // Getters & Setters
 
     public Long getId() {
         return id;
@@ -60,6 +63,14 @@ public class UserDto {
 
     public void setRoleIds(List<Long> roleIds) {
         this.roleIds = roleIds;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 
     @Override
