@@ -1,3 +1,4 @@
+<!-- admin.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -68,20 +69,40 @@
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="id" th:value="${userDto.id}" />
-                                            <input type="text" name="username" class="form-control mb-2"
-                                                   th:value="${userDto.username}" placeholder="First name" />
-                                            <input type="text" name="lastName" class="form-control mb-2"
-                                                   th:value="${userDto.lastName}" placeholder="Last name" />
-                                            <input type="email" name="email" class="form-control mb-2"
-                                                   th:value="${userDto.email}" placeholder="Email" />
-                                            <input type="password" name="password" class="form-control mb-2"
-                                                   placeholder="Password" />
-                                            <select multiple class="form-select" name="roleIds">
-                                                <option th:each="role : ${roles}"
-                                                        th:value="${role.id}"
-                                                        th:text="${#strings.replace(role.name, 'ROLE_', '')}"
-                                                        th:selected="${userDto.roleIds.contains(role.id)}"></option>
-                                            </select>
+
+                                            <div class="mb-2">
+                                                <label>First name</label>
+                                                <input type="text" name="username" class="form-control"
+                                                       th:value="${userDto.username}" placeholder="First name" />
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label>Last name</label>
+                                                <input type="text" name="lastName" class="form-control"
+                                                       th:value="${userDto.lastName}" placeholder="Last name" />
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label>Email</label>
+                                                <input type="email" name="email" class="form-control"
+                                                       th:value="${userDto.email}" placeholder="Email" />
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label>Password</label>
+                                                <input type="password" name="password" class="form-control" placeholder="Password" />
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label>Role</label>
+                                                <select multiple class="form-select" name="roleIds">
+                                                    <option th:each="role : ${roles}"
+                                                            th:value="${role.id}"
+                                                            th:text="${#strings.replace(role.name, 'ROLE_', '')}"
+                                                            th:selected="${userDto.roleIds.contains(role.id)}">
+                                                    </option>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
@@ -104,13 +125,30 @@
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="id" th:value="${userDto.id}" />
-                                            <input type="text" class="form-control mb-2" th:value="${userDto.username}" readonly />
-                                            <input type="text" class="form-control mb-2" th:value="${userDto.lastName}" readonly />
-                                            <input type="email" class="form-control mb-2" th:value="${userDto.email}" readonly />
-                                            <select multiple class="form-select" disabled>
-                                                <option th:each="role : ${userDto.roles}"
-                                                        th:text="${#strings.replace(role, 'ROLE_', '')}"></option>
-                                            </select>
+
+                                            <div class="mb-2">
+                                                <label>First name</label>
+                                                <input type="text" class="form-control" th:value="${userDto.username}" readonly />
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label>Last name</label>
+                                                <input type="text" class="form-control" th:value="${userDto.lastName}" readonly />
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label>Email</label>
+                                                <input type="email" class="form-control" th:value="${userDto.email}" readonly />
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label>Role</label>
+                                                <select multiple class="form-select" disabled>
+                                                    <option th:each="role : ${userDto.roles}"
+                                                            th:text="${#strings.replace(role, 'ROLE_', '')}">
+                                                    </option>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
