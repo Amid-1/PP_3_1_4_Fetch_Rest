@@ -32,8 +32,19 @@ public class UserController {
     }
 
     @GetMapping
-    public String listUsers(Model model, Principal principal) {
-        model.addAttribute("userDtos", userService.getAllUsers());
+    public String listUsers(@RequestParam(value = "filter", required = false) String filter,
+                            Model model,
+                            Principal principal) {
+        List<UserDto> userDtos;
+        if ("ADMIN".equalsIgnoreCase(filter)) {
+            userDtos = userService.findByRole("ROLE_ADMIN");
+        } else if ("USER".equalsIgnoreCase(filter)) {
+            userDtos = userService.findByRole("ROLE_USER");
+        } else {
+            userDtos = userService.getAllUsers();
+        }
+
+        model.addAttribute("userDtos", userDtos);
         model.addAttribute("userForm", new UserFormCreateDto());
         model.addAttribute("roles", roleRepository.findAll());
 
@@ -45,15 +56,27 @@ public class UserController {
 
     @PostMapping("/save")
     public String saveUser(@ModelAttribute("userForm") @Valid UserFormCreateDto userForm,
-                           BindingResult result,
-                           Model model) {
-        if (result.hasErrors()) {
+                           BindingResult bindingResult,
+                           Model model,
+                           Principal principal) {
+        if (bindingResult.hasErrors()) {
             model.addAttribute("userDtos", userService.getAllUsers());
             model.addAttribute("roles", roleRepository.findAll());
-            model.addAttribute("userForm", userForm);
-            return "admin"; // 🔧 исправлено с "users" на "admin"
+
+            UserDetails userDetails = (UserDetails) ((Authentication) principal).getPrincipal();
+            model.addAttribute("user", userDetails);
+
+            return "admin";
         }
-        userService.createUser(userForm);
+
+        try {
+            userService.createUser(userForm); // 👉 Вызов сервисного метода
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Ошибка при создании пользователя: " + e.getMessage());
+            return "admin";
+        }
+
         return "redirect:/admin";
     }
 

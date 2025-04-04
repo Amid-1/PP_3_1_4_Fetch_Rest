@@ -1,24 +1,15 @@
 package ru.kata.spring.boot_security.demo.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.kata.spring.boot_security.demo.dto.UserDto;
-import ru.kata.spring.boot_security.demo.dto.UserFormCreateDto;
-import ru.kata.spring.boot_security.demo.dto.UserFormDto;
-import ru.kata.spring.boot_security.demo.dto.UserFormUpdateDto;
+import ru.kata.spring.boot_security.demo.dto.*;
 import ru.kata.spring.boot_security.demo.model.AppUser;
 import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
-
-    private final RoleRepository roleRepository;
-
-    public UserMapper(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
 
     public UserDto toDto(AppUser user) {
         if (user == null) return null;
@@ -58,7 +49,7 @@ public class UserMapper {
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
-        user.setRoles(fromRoleIds(dto.getRoleIds()));
+        // 🔥 роли устанавливаются в сервисе, а не здесь
         return user;
     }
 
@@ -68,8 +59,7 @@ public class UserMapper {
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
-        user.setRoles(fromRoleIds(dto.getRoleIds()));
-        return user;
+        return user; // 🔥 без ролей
     }
 
     public AppUser fromUpdateDto(UserFormUpdateDto dto, AppUser existingUser) {
@@ -81,8 +71,7 @@ public class UserMapper {
             existingUser.setPassword(dto.getPassword());
         }
 
-        existingUser.setRoles(fromRoleIds(dto.getRoleIds()));
-        return existingUser;
+        return existingUser; // 🔥 роли ставим в сервисе
     }
 
     public UserFormUpdateDto toUpdateDto(UserDto userDto) {
@@ -100,10 +89,5 @@ public class UserMapper {
         return roles.stream()
                 .map(Role::getId)
                 .collect(Collectors.toList());
-    }
-
-    private Set<Role> fromRoleIds(Collection<Long> roleIds) {
-        if (roleIds == null) return null;
-        return new HashSet<>(roleRepository.findAllById(roleIds));
     }
 }

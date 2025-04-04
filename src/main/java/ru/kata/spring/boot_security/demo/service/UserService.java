@@ -15,4 +15,6 @@ public interface UserService {
     void updateUser(UserFormUpdateDto dto);
     void deleteUser(Long id);
     void register(UserFormDto dto);
+
+    List<UserDto> findByRole(String roleName);
 }

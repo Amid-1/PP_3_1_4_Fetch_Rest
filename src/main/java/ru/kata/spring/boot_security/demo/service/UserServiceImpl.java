@@ -58,6 +58,16 @@ public class UserServiceImpl implements UserService {
     public void createUser(UserFormCreateDto dto) {
         AppUser user = userMapper.fromCreateDto(dto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+
+        if (dto.getRoleIds() != null && !dto.getRoleIds().isEmpty()) {
+            Set<Role> roles = dto.getRoleIds().stream()
+                    .map(id -> roleRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("Роль с ID " + id + " не найдена")))
+                    .collect(Collectors.toSet());
+            user.setRoles(roles);
+        }
+
         userRepository.save(user);
     }
 
@@ -67,13 +77,26 @@ public class UserServiceImpl implements UserService {
         AppUser existingUser = userRepository.findById(dto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
 
-        AppUser updatedUser = userMapper.fromUpdateDto(dto, existingUser);
+        // Обновляем базовые поля (без ролей и пароля)
+        existingUser.setUsername(dto.getUsername());
+        existingUser.setLastName(dto.getLastName());
+        existingUser.setEmail(dto.getEmail());
 
+        // Обновляем пароль, если введён
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            updatedUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+            existingUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
-        userRepository.save(updatedUser);
+        // Устанавливаем роли вручную
+        if (dto.getRoleIds() != null && !dto.getRoleIds().isEmpty()) {
+            Set<Role> roles = dto.getRoleIds().stream()
+                    .map(id -> roleRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("Роль с ID " + id + " не найдена")))
+                    .collect(Collectors.toSet());
+            existingUser.setRoles(roles);
+        }
+
+        userRepository.save(existingUser);
     }
 
     @Override
@@ -95,5 +118,11 @@ public class UserServiceImpl implements UserService {
         user.setRoles(Set.of(role));
 
         userRepository.save(user);
+    }
+
+    public List<UserDto> findByRole(String roleName) {
+        return userRepository.findByRoles_Name(roleName).stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
