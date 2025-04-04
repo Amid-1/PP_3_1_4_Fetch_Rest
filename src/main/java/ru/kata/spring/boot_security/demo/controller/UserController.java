@@ -44,6 +44,7 @@ public class UserController {
             userDtos = userService.getAllUsers();
         }
 
+        model.addAttribute("filter", filter); // 👉 передаём в шаблон
         model.addAttribute("userDtos", userDtos);
         model.addAttribute("userForm", new UserFormCreateDto());
         model.addAttribute("roles", roleRepository.findAll());
