@@ -3,12 +3,15 @@ package ru.kata.spring.boot_security.demo.service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.dto.*;
+import ru.kata.spring.boot_security.demo.dto.UserDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormCreateDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormUpdateDto;
 import ru.kata.spring.boot_security.demo.mapper.UserMapper;
-import ru.kata.spring.boot_security.demo.model.AppUser;
+import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
-import ru.kata.spring.boot_security.demo.repositories.UserRepository;
+import ru.kata.spring.boot_security.demo.repository.RoleRepository;
+import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +59,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void createUser(UserFormCreateDto dto) {
-        AppUser user = userMapper.fromCreateDto(dto);
+        User user = userMapper.fromCreateDto(dto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
 
@@ -74,20 +77,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUser(UserFormUpdateDto dto) {
-        AppUser existingUser = userRepository.findById(dto.getId())
+        User existingUser = userRepository.findById(dto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
 
-        // Обновляем базовые поля (без ролей и пароля)
         existingUser.setUsername(dto.getUsername());
         existingUser.setLastName(dto.getLastName());
         existingUser.setEmail(dto.getEmail());
 
-        // Обновляем пароль, если введён
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             existingUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
-        // Устанавливаем роли вручную
         if (dto.getRoleIds() != null && !dto.getRoleIds().isEmpty()) {
             Set<Role> roles = dto.getRoleIds().stream()
                     .map(id -> roleRepository.findById(id)
@@ -102,15 +102,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + id + " не найден"));
+        userRepository.delete(user);
     }
 
     @Override
     @Transactional
     public void register(UserFormDto dto) {
-        AppUser user = userMapper.fromFormDto(dto);
+        User user = userMapper.fromFormDto(dto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Role role = roleRepository.findByName("ROLE_USER")

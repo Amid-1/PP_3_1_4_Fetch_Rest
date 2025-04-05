@@ -1,8 +1,15 @@
 package ru.kata.spring.boot_security.demo.model;
 
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
 import java.util.Objects;
+
 
 @Entity
 @Table(name = "roles")
@@ -33,15 +40,28 @@ public class Role implements GrantedAuthority {
     public void setName(String name) { this.name = name; }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Role)) return false;
-        Role role = (Role) o;
-        return Objects.equals(name, role.name);
+        if (o == null) return false;
+
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+                : o.getClass();
+
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+                : this.getClass();
+
+        if (!thisEffectiveClass.equals(oEffectiveClass)) return false;
+
+        Role that = (Role) o;
+        return getId() != null && getId().equals(that.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name);
+    public final int hashCode() {
+        return this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+                : getClass().hashCode();
     }
 }

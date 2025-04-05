@@ -12,7 +12,7 @@
     <div class="container mt-4">
         <h2>Admin panel</h2>
 
-        <!-- 🔍 Фильтр -->
+        <!-- Фильтр -->
         <div class="mb-3">
             <div class="btn-group" role="group">
                 <a class="btn btn-outline-primary" th:href="@{/admin}">All users</a>
@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <!-- 🧾 Таблица пользователей -->
+        <!-- Таблица пользователей -->
         <div th:if="${filter == null or #strings.equalsIgnoreCase(filter, 'ADMIN') or #strings.equalsIgnoreCase(filter, 'USER')}">
             <h5>All users</h5>
             <table class="table table-bordered table-striped align-middle mt-3">

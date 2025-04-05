@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/login", "/error").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")  // Доступ для admin
-                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")  // Доступ для user и admin
+                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()

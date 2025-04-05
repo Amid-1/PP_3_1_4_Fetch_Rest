@@ -3,14 +3,21 @@ package ru.kata.spring.boot_security.demo.controller;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.dto.*;
+import ru.kata.spring.boot_security.demo.dto.UserDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormCreateDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormUpdateDto;
 import ru.kata.spring.boot_security.demo.mapper.UserMapper;
-import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
+import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.service.UserService;
-
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
@@ -44,7 +51,7 @@ public class UserController {
             userDtos = userService.getAllUsers();
         }
 
-        model.addAttribute("filter", filter); // 👉 передаём в шаблон
+        model.addAttribute("filter", filter);
         model.addAttribute("userDtos", userDtos);
         model.addAttribute("userForm", new UserFormCreateDto());
         model.addAttribute("roles", roleRepository.findAll());
@@ -71,7 +78,7 @@ public class UserController {
         }
 
         try {
-            userService.createUser(userForm); // 👉 Вызов сервисного метода
+            userService.createUser(userForm);
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", "Ошибка при создании пользователя: " + e.getMessage());
@@ -88,7 +95,7 @@ public class UserController {
         if (result.hasErrors()) {
             model.addAttribute("userDtos", userService.getAllUsers());
             model.addAttribute("roles", roleRepository.findAll());
-            return "admin"; // 🔧 исправлено с "users" на "admin"
+            return "admin";
         }
         userService.updateUser(userDto);
         return "redirect:/admin";
@@ -99,21 +106,19 @@ public class UserController {
         Long id = userDto.getId();
         if (id == null) {
             model.addAttribute("error", "Ошибка: ID пользователя не передан.");
-            return "admin"; // 🔧 исправлено с "users" на "admin"
+            return "admin";
         }
 
         try {
             userService.deleteUser(id);
         } catch (Exception e) {
             model.addAttribute("error", "Не удалось удалить пользователя: " + e.getMessage());
-            return "admin"; // 🔧 исправлено с "users" на "admin"
+            return "admin";
         }
 
         return "redirect:/admin";
     }
 
-    // ❓ Используешь ли отдельную страницу редактирования?
-    // Если нет — этот метод можно удалить
     @GetMapping("/edit/{id}")
     public String editUser(@PathVariable Long id, Model model) {
         UserFormUpdateDto userDto = userMapper.toUpdateDto(userService.getUserById(id));
