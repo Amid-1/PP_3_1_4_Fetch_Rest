@@ -6,7 +6,7 @@ import java.util.Objects;
 public class UserDto {
 
     private Long id;
-    private String username;
+    private String firstName;
     private String lastName;
     private String email;
     private String password;
@@ -14,8 +14,6 @@ public class UserDto {
     private List<String> roles;
 
     public UserDto() {}
-
-    // Getters & Setters
 
     public Long getId() {
         return id;
@@ -25,12 +23,12 @@ public class UserDto {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getLastName() {

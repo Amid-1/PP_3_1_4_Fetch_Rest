@@ -16,7 +16,7 @@ public class UserMapper {
 
         UserDto dto = new UserDto();
         dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
+        dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setEmail(user.getEmail());
         dto.setRoleIds(toRoleIds(user.getRoles()));
@@ -76,7 +76,7 @@ public class UserMapper {
     public UserFormUpdateDto toUpdateDto(UserDto userDto) {
         UserFormUpdateDto dto = new UserFormUpdateDto();
         dto.setId(userDto.getId());
-        dto.setUsername(userDto.getUsername());
+        dto.setUsername(userDto.getFirstName()); // ← замена
         dto.setLastName(userDto.getLastName());
         dto.setEmail(userDto.getEmail());
         dto.setRoleIds(userDto.getRoleIds());

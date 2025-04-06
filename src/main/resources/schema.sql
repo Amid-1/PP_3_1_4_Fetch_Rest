@@ -1,7 +1,6 @@
-DROP TABLE IF EXISTS users_roles;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS roles;
-
+-- DROP TABLE IF EXISTS users_roles;
+-- DROP TABLE IF EXISTS users;
+-- DROP TABLE IF EXISTS roles;
 CREATE TABLE roles (
                        id BIGINT PRIMARY KEY AUTO_INCREMENT,
                        name VARCHAR(255) NOT NULL UNIQUE

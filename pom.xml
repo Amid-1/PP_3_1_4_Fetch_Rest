@@ -62,7 +62,7 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Логирование (входит в web + boot-starter, но можно указать явно) -->
+		<!-- Логирование в консоль -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-logging</artifactId>

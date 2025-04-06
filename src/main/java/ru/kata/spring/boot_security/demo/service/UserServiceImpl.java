@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    @Value("${app.default-user-role}")
+    private String defaultUserRole;
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -113,7 +117,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.fromFormDto(dto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Role role = roleRepository.findByName("ROLE_USER")
+        Role role = roleRepository.findByName(defaultUserRole)
                 .orElseThrow(() -> new RuntimeException("Роль не найдена"));
         user.setRoles(Set.of(role));
 

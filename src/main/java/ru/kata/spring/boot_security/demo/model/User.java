@@ -51,6 +51,10 @@ public class User implements UserDetails {
         this.id = id;
     }
 
+    public String getFirstName() {
+        return username;
+    }
+
     public String getUsername() {
         return email;
     }

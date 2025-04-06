@@ -40,7 +40,7 @@
                 <tbody>
                 <tr th:each="userDto : ${userDtos}">
                     <td th:text="${userDto.id}"></td>
-                    <td th:text="${userDto.username}"></td>
+                    <td th:text="${userDto.firstName}"></td>
                     <td th:text="${userDto.lastName}"></td>
                     <td th:text="${userDto.email}"></td>
                     <td th:text="${#strings.listJoin(userDto.roles, ' ')}"></td>
@@ -69,7 +69,7 @@
                                             <div class="mb-2">
                                                 <label>First name</label>
                                                 <input type="text" name="username" class="form-control"
-                                                       th:value="${userDto.username}" placeholder="First name" />
+                                                       th:value="${userDto.firstName}" placeholder="First name" />
                                             </div>
 
                                             <div class="mb-2">
@@ -124,7 +124,7 @@
 
                                             <div class="mb-2">
                                                 <label>First name</label>
-                                                <input type="text" class="form-control" th:value="${userDto.username}" readonly />
+                                                <input type="text" class="form-control" th:value="${userDto.firstName}" readonly />
                                             </div>
 
                                             <div class="mb-2">
