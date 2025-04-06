@@ -34,7 +34,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <!-- 🧭 Sidebar menu (visible only for authenticated users) -->
+        <!-- Sidebar -->
         <div class="col-md-2 bg-white border-end p-0"
              th:if="${#authorization.expression('isAuthenticated()')}">
             <div class="list-group list-group-flush"
@@ -44,6 +44,7 @@
             </div>
         </div>
 
+        <!-- Main content -->
         <main class="col"
               th:classappend="${#authorization.expression('isAuthenticated()')} ? 'col-md-10' : 'col-12'"
               layout:fragment="content">

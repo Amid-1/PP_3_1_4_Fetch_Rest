@@ -1,14 +1,11 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import ru.kata.spring.boot_security.demo.dto.UserDto;
@@ -147,5 +144,19 @@ public class UserController {
         }
         userService.register(userDto);
         return "redirect:/login";
+    }
+
+
+
+    @PostMapping
+    public ResponseEntity<?> createUser(@RequestBody UserFormCreateDto userForm) {
+        System.out.println(">>> POST /api/users: " + userForm.getEmail() + " — " + userForm.getRoleIds());
+        try {
+            userService.createUser(userForm);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ошибка: " + e.getMessage());
+        }
     }
 }

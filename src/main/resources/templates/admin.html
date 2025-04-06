@@ -6,24 +6,22 @@
 <head>
     <title>Admin panel</title>
 </head>
-
 <body>
 <section layout:fragment="content">
     <div class="container mt-4">
         <h2>Admin panel</h2>
 
-        <!-- Фильтр -->
         <div class="mb-3">
             <div class="btn-group" role="group">
                 <a class="btn btn-outline-primary" th:href="@{/admin}">All users</a>
-                <a class="btn btn-outline-primary" th:href="@{/admin?filter=ADMIN}">Admins</a>
-                <a class="btn btn-outline-primary" th:href="@{/admin?filter=USER}">Users</a>
-                <a class="btn btn-outline-success" th:href="@{/admin?filter=new}">+ New User</a>
+                <a class="btn btn-outline-primary" th:href="@{/admin(filter='ADMIN')}">Admins</a>
+                <a class="btn btn-outline-primary" th:href="@{/admin(filter='USER')}">Users</a>
+                <a class="btn btn-outline-success" th:href="@{/admin(filter='new')}">+ New User</a>
             </div>
         </div>
 
         <!-- Таблица пользователей -->
-        <div th:if="${filter == null or #strings.equalsIgnoreCase(filter, 'ADMIN') or #strings.equalsIgnoreCase(filter, 'USER')}">
+        <div>
             <h5>All users</h5>
             <table class="table table-bordered table-striped align-middle mt-3">
                 <thead class="table-dark">
@@ -37,146 +35,214 @@
                     <th>Delete</th>
                 </tr>
                 </thead>
-                <tbody>
-                <tr th:each="userDto : ${userDtos}">
-                    <td th:text="${userDto.id}"></td>
-                    <td th:text="${userDto.firstName}"></td>
-                    <td th:text="${userDto.lastName}"></td>
-                    <td th:text="${userDto.email}"></td>
-                    <td th:text="${#strings.listJoin(userDto.roles, ' ')}"></td>
-                    <td>
-                        <button type="button" class="btn btn-info btn-sm"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#editUserModal' + ${userDto.id}">Edit</button>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#deleteUserModal' + ${userDto.id}">Delete</button>
-                    </td>
-                        <!-- Edit Modal -->
-                        <div class="modal fade" th:id="'editUserModal' + ${userDto.id}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form th:action="@{/admin/update}" method="post">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Edit user</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <input type="hidden" name="id" th:value="${userDto.id}" />
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
 
-                                            <div class="mb-2">
-                                                <label>First name</label>
-                                                <input type="text" name="username" class="form-control"
-                                                       th:value="${userDto.firstName}" placeholder="First name" />
-                                            </div>
-
-                                            <div class="mb-2">
-                                                <label>Last name</label>
-                                                <input type="text" name="lastName" class="form-control"
-                                                       th:value="${userDto.lastName}" placeholder="Last name" />
-                                            </div>
-
-                                            <div class="mb-2">
-                                                <label>Email</label>
-                                                <input type="email" name="email" class="form-control"
-                                                       th:value="${userDto.email}" placeholder="Email" />
-                                            </div>
-
-                                            <div class="mb-2">
-                                                <label>Password</label>
-                                                <input type="password" name="password" class="form-control" placeholder="Password" />
-                                            </div>
-
-                                            <div class="mb-2">
-                                                <label>Role</label>
-                                                <select multiple class="form-select" name="roleIds">
-                                                    <option th:each="role : ${roles}"
-                                                            th:value="${role.id}"
-                                                            th:text="${#strings.replace(role.name, 'ROLE_', '')}"
-                                                            th:selected="${userDto.roleIds.contains(role.id)}">
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Edit</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Delete Modal -->
-                        <div class="modal fade" th:id="'deleteUserModal' + ${userDto.id}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form th:action="@{/admin/delete}" method="post">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Delete user</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <input type="hidden" name="id" th:value="${userDto.id}" />
-
-                                            <div class="mb-2">
-                                                <label>First name</label>
-                                                <input type="text" class="form-control" th:value="${userDto.firstName}" readonly />
-                                            </div>
-
-                                            <div class="mb-2">
-                                                <label>Last name</label>
-                                                <input type="text" class="form-control" th:value="${userDto.lastName}" readonly />
-                                            </div>
-
-                                            <div class="mb-2">
-                                                <label>Email</label>
-                                                <input type="email" class="form-control" th:value="${userDto.email}" readonly />
-                                            </div>
-
-                                            <div class="mb-2">
-                                                <label>Role</label>
-                                                <select multiple class="form-select" disabled>
-                                                    <option th:each="role : ${userDto.roles}"
-                                                            th:text="${#strings.replace(role, 'ROLE_', '')}">
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- New User Form -->
-        <div th:if="${filter == 'new'}">
+        <!-- New User Form -->
+        <div>
             <h5>Add new user</h5>
-            <form th:action="@{/admin/save}" method="post" th:object="${userForm}" class="mt-3" style="max-width: 500px;">
-                <input type="text" th:field="*{username}" class="form-control mb-2" placeholder="First name"/>
-                <input type="text" th:field="*{lastName}" class="form-control mb-2" placeholder="Last name"/>
-                <input type="email" th:field="*{email}" class="form-control mb-2" placeholder="Email"/>
-                <input type="password" th:field="*{password}" class="form-control mb-2" placeholder="Password"/>
-                <select multiple th:field="*{roleIds}" class="form-select mb-3">
-                    <option th:each="role : ${roles}" th:value="${role.id}"
-                            th:text="${#strings.replace(role.name, 'ROLE_', '')}"></option>
-                </select>
+            <form id="createUserForm" class="mt-3" style="max-width: 500px;" onsubmit="createUser(event)">
+                <input type="text" name="username" class="form-control mb-2" placeholder="First name" required />
+                <input type="text" name="lastName" class="form-control mb-2" placeholder="Last name" required />
+                <input type="email" name="email" class="form-control mb-2" placeholder="Email" required />
+                <input type="password" name="password" class="form-control mb-2" placeholder="Password" required />
+                <select name="roleIds" multiple class="form-select mb-3" id="roleSelect"></select>
                 <button type="submit" class="btn btn-success w-100">Add new user</button>
             </form>
         </div>
     </div>
+
+    <script>
+        console.log("🌐 Скрипт загружен");
+
+        async function loadUsers() {
+            const response = await fetch('/api/users');
+            const users = await response.json();
+            console.log("✅ Загруженные пользователи:", users);
+            renderUsers(users);
+        }
+
+        async function loadUsersWithFilter(filter) {
+            let url = '/api/users';
+            if (filter && filter !== 'new') {
+                url += `?filter=${filter}`;
+            }
+            const response = await fetch(url);
+            const users = await response.json();
+            console.log("✅ Загруженные пользователи с фильтром:", users);
+            renderUsers(users);
+        }
+
+        function renderUsers(users) {
+            const tableBody = document.getElementById('userTableBody');
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.firstName}</td>
+                    <td>${user.lastName}</td>
+                    <td>${user.email}</td>
+                    <td>${user.roles.map(r => r.name).join(', ')}</td>
+                    <td><button class="btn btn-info btn-sm" onclick="editUser(${user.id})">Edit</button></td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function loadRoles() {
+            const response = await fetch('/api/roles');
+            const roles = await response.json();
+            console.log("Загруженные роли:", roles);
+
+            const select = document.getElementById('roleSelect');
+            if (!select) return;
+
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.text = role.name.replace('ROLE_', '');
+                select.appendChild(option);
+            });
+        }
+
+        async function createUser(event) {
+            event.preventDefault();
+            const form = document.getElementById('createUserForm');
+            const formData = new FormData(form);
+
+            const user = {
+                username: formData.get('username'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                roleIds: Array.from(formData.getAll('roleIds')).map(Number)
+            };
+
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+
+            if (response.ok) {
+                form.reset();
+                window.history.pushState({}, '', '/admin');
+                await loadUsers();
+            } else {
+                const error = await response.text();
+                alert('Ошибка при добавлении пользователя: ' + error);
+            }
+        }
+
+        async function editUser(id) {
+            const response = await fetch(`/api/users/${id}`);
+            const user = await response.json();
+
+            const modalHtml = `
+            <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form id="editUserForm" onsubmit="submitEditUser(event, ${user.id})">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Edit User</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      <input type="text" name="username" value="${user.firstName}" class="form-control mb-2" required />
+                      <input type="text" name="lastName" value="${user.lastName}" class="form-control mb-2" required />
+                      <input type="email" name="email" value="${user.email}" class="form-control mb-2" required />
+                      <input type="password" name="password" class="form-control mb-2" placeholder="New password" />
+                      <select name="roleIds" multiple class="form-select" id="editRoleSelect"></select>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            const roleResponse = await fetch('/api/roles');
+            const roles = await roleResponse.json();
+            const select = document.getElementById('editRoleSelect');
+
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.text = role.name.replace('ROLE_', '');
+                if (user.roleIds.includes(role.id)) option.selected = true;
+                select.appendChild(option);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            modal.show();
+
+            document.getElementById('editUserModal').addEventListener('hidden.bs.modal', () => {
+                document.getElementById('editUserModal').remove();
+            });
+        }
+
+        async function submitEditUser(event, id) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const user = {
+                username: formData.get('username'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                roleIds: Array.from(formData.getAll('roleIds')).map(Number)
+            };
+
+            const response = await fetch(`/api/users/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+
+            if (response.ok) {
+                await loadUsers();
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+            } else {
+                alert('Ошибка при обновлении пользователя');
+            }
+        }
+
+        async function deleteUser(id) {
+            const confirmed = confirm("Вы уверены, что хотите удалить пользователя?");
+            if (!confirmed) return;
+
+            const response = await fetch(`/api/users/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                await loadUsers();
+            } else {
+                alert("Ошибка при удалении пользователя");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            console.log("⚡ DOM загружен");
+            const filter = new URLSearchParams(window.location.search).get('filter');
+            if (filter && filter !== 'new') {
+                await loadUsersWithFilter(filter);
+            } else {
+                await loadUsers();
+            }
+            await loadRoles();
+        });
+    </script>
 </section>
 </body>
 </html>
