@@ -22,7 +22,7 @@ public class RoleDto {
     }
 
     public String getName() {
-        return name.replace("ROLE_", ""); // если хочешь убирать префикс
+        return name.replace("ROLE_", "");
     }
 
     public void setName(String name) {

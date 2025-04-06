@@ -54,12 +54,10 @@
     </div>
 
     <script>
-        console.log("🌐 Скрипт загружен");
 
         async function loadUsers() {
             const response = await fetch('/api/users');
             const users = await response.json();
-            console.log("✅ Загруженные пользователи:", users);
             renderUsers(users);
         }
 
@@ -70,7 +68,6 @@
             }
             const response = await fetch(url);
             const users = await response.json();
-            console.log("✅ Загруженные пользователи с фильтром:", users);
             renderUsers(users);
         }
 
@@ -97,8 +94,6 @@
         async function loadRoles() {
             const response = await fetch('/api/roles');
             const roles = await response.json();
-            console.log("Загруженные роли:", roles);
-
             const select = document.getElementById('roleSelect');
             if (!select) return;
 
@@ -233,7 +228,6 @@
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            console.log("⚡ DOM загружен");
             const filter = new URLSearchParams(window.location.search).get('filter');
             if (filter && filter !== 'new') {
                 await loadUsersWithFilter(filter);

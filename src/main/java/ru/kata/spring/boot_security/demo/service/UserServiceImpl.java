@@ -76,11 +76,6 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.save(user);
-
-
-        //////////
-        System.out.println(">> Получен пользователь: " + dto.getUsername() + ", роли: " + dto.getRoleIds());
-        /// //////
     }
 
     @Override

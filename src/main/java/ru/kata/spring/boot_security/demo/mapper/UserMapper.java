@@ -1,7 +1,11 @@
 package ru.kata.spring.boot_security.demo.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.kata.spring.boot_security.demo.dto.*;
+import ru.kata.spring.boot_security.demo.dto.RoleDto;
+import ru.kata.spring.boot_security.demo.dto.UserDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormCreateDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormDto;
+import ru.kata.spring.boot_security.demo.dto.UserFormUpdateDto;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.model.Role;
 import java.util.List;
@@ -76,7 +80,7 @@ public class UserMapper {
     public UserFormUpdateDto toUpdateDto(UserDto userDto) {
         UserFormUpdateDto dto = new UserFormUpdateDto();
         dto.setId(userDto.getId());
-        dto.setUsername(userDto.getFirstName()); // ← замена
+        dto.setUsername(userDto.getFirstName());
         dto.setLastName(userDto.getLastName());
         dto.setEmail(userDto.getEmail());
         dto.setRoleIds(userDto.getRoleIds());
