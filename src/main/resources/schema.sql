@@ -1,3 +1,5 @@
+-- schema.sql
+
 -- DROP TABLE IF EXISTS users_roles;
 -- DROP TABLE IF EXISTS users;
 -- DROP TABLE IF EXISTS roles;

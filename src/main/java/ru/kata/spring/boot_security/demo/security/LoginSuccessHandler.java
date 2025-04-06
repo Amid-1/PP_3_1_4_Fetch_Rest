@@ -1,6 +1,6 @@
 package ru.kata.spring.boot_security.demo.security;
 
-import org.springframework.security.core.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
