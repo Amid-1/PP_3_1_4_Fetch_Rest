@@ -7,7 +7,13 @@
 <section layout:fragment="content">
     <div class="container mt-5">
         <h2 class="text-center mb-4">Register</h2>
-        <form th:action="@{/admin/register}" method="post" th:object="${userDto}" class="mx-auto p-4 border rounded bg-white shadow" style="max-width: 500px;">
+
+        <!-- Блок ошибок -->
+        <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+
+        <form id="registerForm" th:action="@{/admin/register}" method="post"
+              th:object="${userDto}" class="mx-auto p-4 border rounded bg-white shadow"
+              style="max-width: 500px;" onsubmit="submitRegisterForm(event)">
             <div class="mb-3">
                 <input type="text" th:field="*{username}" class="form-control" placeholder="First Name"/>
                 <div class="text-danger" th:errors="*{username}"></div>
@@ -26,13 +32,57 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Roles</label>
-                <select multiple th:field="*{roleIds}" class="form-select">
-                    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${#strings.replace(role.name, 'ROLE_', '')}"></option>
+                <select multiple th:field="*{roleIds}" class="form-select" id="registerRolesSelect">
+                    <option th:each="role : ${roles}"
+                            th:value="${role.id}"
+                            th:text="${#strings.replace(role.name, 'ROLE_', '')}">
+                    </option>
                 </select>
             </div>
             <button type="submit" class="btn btn-success w-100">Register</button>
         </form>
     </div>
+
+    <script>
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            if (!errorDiv) return;
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('d-none');
+
+            setTimeout(() => {
+                errorDiv.classList.add('d-none');
+            }, 5000);
+        }
+
+        async function submitRegisterForm(event) {
+            event.preventDefault();
+            const form = document.getElementById('registerForm');
+            const formData = new FormData(form);
+
+            const user = {
+                username: formData.get('username'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                roleIds: Array.from(formData.getAll('roleIds')).map(Number)
+            };
+
+            const response = await fetch('/admin/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+
+            if (response.ok) {
+                window.location.href = '/login';
+            } else {
+                const error = await response.text();
+                showError('Ошибка при регистрации: ' + error);
+            }
+        }
+    </script>
+
 </section>
 </body>
 </html>

@@ -1,4 +1,5 @@
 <!-- admin.html -->
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -11,16 +12,18 @@
     <div class="container mt-4">
         <h2>Admin panel</h2>
 
+        <!-- Блок ошибок -->
+        <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+
         <div class="mb-3">
             <div class="btn-group" role="group">
                 <a class="btn btn-outline-primary" th:href="@{/admin}">All users</a>
                 <a class="btn btn-outline-primary" th:href="@{/admin(filter='ADMIN')}">Admins</a>
                 <a class="btn btn-outline-primary" th:href="@{/admin(filter='USER')}">Users</a>
-                <a class="btn btn-outline-success" th:href="@{/admin(filter='new')}">+ New User</a>
+                <button class="btn btn-outline-success" onclick="openCreateModal()">+ New User</button>
             </div>
         </div>
 
-        <!-- Таблица пользователей -->
         <div>
             <h5>All users</h5>
             <table class="table table-bordered table-striped align-middle mt-3">
@@ -38,23 +41,34 @@
                 <tbody id="userTableBody"></tbody>
             </table>
         </div>
+    </div>
 
-        <!-- New User Form -->
-        <div>
-            <h5>Add new user</h5>
-            <form id="createUserForm" class="mt-3" style="max-width: 500px;" onsubmit="createUser(event)">
-                <input type="text" name="username" class="form-control mb-2" placeholder="First name" required />
-                <input type="text" name="lastName" class="form-control mb-2" placeholder="Last name" required />
-                <input type="email" name="email" class="form-control mb-2" placeholder="Email" required />
-                <input type="password" name="password" class="form-control mb-2" placeholder="Password" required />
-                <select name="roleIds" multiple class="form-select mb-3" id="roleSelect"></select>
-                <button type="submit" class="btn btn-success w-100">Add new user</button>
-            </form>
+    <!-- Modal: Add User -->
+    <div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="createUserForm" onsubmit="createUser(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" name="username" class="form-control mb-2" placeholder="First name" required />
+                        <input type="text" name="lastName" class="form-control mb-2" placeholder="Last name" required />
+                        <input type="email" name="email" class="form-control mb-2" placeholder="Email" required />
+                        <input type="password" name="password" class="form-control mb-2" placeholder="Password" required />
+                        <select name="roleIds" multiple class="form-select mb-3" id="roleSelect"></select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Add</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-
         async function loadUsers() {
             const response = await fetch('/api/users');
             const users = await response.json();
@@ -79,16 +93,27 @@
             users.forEach(user => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${user.id}</td>
-                    <td>${user.firstName}</td>
-                    <td>${user.lastName}</td>
-                    <td>${user.email}</td>
-                    <td>${user.roles.map(r => r.name).join(', ')}</td>
-                    <td><button class="btn btn-info btn-sm" onclick="editUser(${user.id})">Edit</button></td>
-                    <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Delete</button></td>
-                `;
+                <td>${user.id}</td>
+                <td>${user.firstName}</td>
+                <td>${user.lastName}</td>
+                <td>${user.email}</td>
+                <td>${user.roles.map(r => r.name).join(', ')}</td>
+                <td><button class="btn btn-info btn-sm" onclick="editUser(${user.id})">Edit</button></td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Delete</button></td>
+            `;
                 tableBody.appendChild(row);
             });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            if (!errorDiv) return;
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('d-none');
+
+            setTimeout(() => {
+                errorDiv.classList.add('d-none');
+            }, 5000);
         }
 
         async function loadRoles() {
@@ -97,12 +122,19 @@
             const select = document.getElementById('roleSelect');
             if (!select) return;
 
+            select.innerHTML = '';
             roles.forEach(role => {
                 const option = document.createElement('option');
                 option.value = role.id;
                 option.text = role.name.replace('ROLE_', '');
                 select.appendChild(option);
             });
+        }
+
+        function openCreateModal() {
+            loadRoles();
+            const modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+            modal.show();
         }
 
         async function createUser(event) {
@@ -126,43 +158,45 @@
 
             if (response.ok) {
                 form.reset();
-                window.history.pushState({}, '', '/admin');
+                bootstrap.Modal.getInstance(document.getElementById('createUserModal')).hide();
                 await loadUsers();
             } else {
                 const error = await response.text();
-                alert('Ошибка при добавлении пользователя: ' + error);
+                showError('Ошибка при добавлении пользователя: ' + error);
             }
         }
 
         async function editUser(id) {
+            const existingModal = document.getElementById('editUserModal');
+            if (existingModal) existingModal.remove();
+
             const response = await fetch(`/api/users/${id}`);
             const user = await response.json();
 
             const modalHtml = `
-            <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <form id="editUserForm" onsubmit="submitEditUser(event, ${user.id})">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Edit User</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                      <input type="text" name="username" value="${user.firstName}" class="form-control mb-2" required />
-                      <input type="text" name="lastName" value="${user.lastName}" class="form-control mb-2" required />
-                      <input type="email" name="email" value="${user.email}" class="form-control mb-2" required />
-                      <input type="password" name="password" class="form-control mb-2" placeholder="New password" />
-                      <select name="roleIds" multiple class="form-select" id="editRoleSelect"></select>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                  </form>
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form id="editUserForm" onsubmit="submitEditUser(event, ${user.id})">
+                <div class="modal-header">
+                  <h5 class="modal-title">Edit User</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-              </div>
+                <div class="modal-body">
+                  <input type="text" name="username" value="${user.firstName}" class="form-control mb-2" required />
+                  <input type="text" name="lastName" value="${user.lastName}" class="form-control mb-2" required />
+                  <input type="email" name="email" value="${user.email}" class="form-control mb-2" required />
+                  <input type="password" name="password" class="form-control mb-2" placeholder="New password" />
+                  <select name="roleIds" multiple class="form-select" id="editRoleSelect"></select>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+              </form>
             </div>
-        `;
+          </div>
+        </div>`;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
 
             const roleResponse = await fetch('/api/roles');
@@ -207,8 +241,10 @@
             if (response.ok) {
                 await loadUsers();
                 bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                document.getElementById('editUserModal').remove();
             } else {
-                alert('Ошибка при обновлении пользователя');
+                const error = await response.text();
+                showError('Ошибка при редактировании: ' + error);
             }
         }
 
@@ -216,14 +252,13 @@
             const confirmed = confirm("Вы уверены, что хотите удалить пользователя?");
             if (!confirmed) return;
 
-            const response = await fetch(`/api/users/${id}`, {
-                method: 'DELETE'
-            });
+            const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
 
             if (response.ok) {
                 await loadUsers();
             } else {
-                alert("Ошибка при удалении пользователя");
+                const error = await response.text();
+                showError('Ошибка при удалении: ' + error);
             }
         }
 
@@ -234,9 +269,9 @@
             } else {
                 await loadUsers();
             }
-            await loadRoles();
         });
     </script>
+
 </section>
 </body>
 </html>
