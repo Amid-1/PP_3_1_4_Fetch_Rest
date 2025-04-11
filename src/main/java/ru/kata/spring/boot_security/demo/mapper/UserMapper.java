@@ -20,7 +20,7 @@ public class UserMapper {
 
         UserDto dto = new UserDto();
         dto.setId(user.getId());
-        dto.setFirstName(user.getFirstName());
+        dto.setUsername(user.getUsername());
         dto.setLastName(user.getLastName());
         dto.setEmail(user.getEmail());
         dto.setRoleIds(toRoleIds(user.getRoles()));
@@ -80,7 +80,7 @@ public class UserMapper {
     public UserFormUpdateDto toUpdateDto(UserDto userDto) {
         UserFormUpdateDto dto = new UserFormUpdateDto();
         dto.setId(userDto.getId());
-        dto.setUsername(userDto.getFirstName());
+        dto.setUsername(userDto.getUsername());
         dto.setLastName(userDto.getLastName());
         dto.setEmail(userDto.getEmail());
         dto.setRoleIds(userDto.getRoleIds());

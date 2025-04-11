@@ -20,10 +20,7 @@ public class UserRestController {
 
     @GetMapping("/current")
     public UserDto getCurrentUser(Authentication authentication) {
-        return userService.getAllUsers().stream()
-                .filter(u -> u.getEmail().equals(authentication.getName()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userService.getByEmail(authentication.getName());
     }
 
     @PostMapping

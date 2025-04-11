@@ -8,6 +8,7 @@ import ru.kata.spring.boot_security.demo.dto.UserDto;
 import ru.kata.spring.boot_security.demo.dto.UserFormCreateDto;
 import ru.kata.spring.boot_security.demo.dto.UserFormDto;
 import ru.kata.spring.boot_security.demo.dto.UserFormUpdateDto;
+import ru.kata.spring.boot_security.demo.exception.EmailAlreadyUsedException;
 import ru.kata.spring.boot_security.demo.mapper.UserMapper;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.model.Role;
@@ -63,9 +64,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void createUser(UserFormCreateDto dto) {
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new EmailAlreadyUsedException(dto.getEmail());
+        }
+
         User user = userMapper.fromCreateDto(dto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
 
         if (dto.getRoleIds() != null && !dto.getRoleIds().isEmpty()) {
             Set<Role> roles = dto.getRoleIds().stream()
@@ -128,5 +132,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByRoles_Name(roleName).stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public UserDto getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
     }
 }

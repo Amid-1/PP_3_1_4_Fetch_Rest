@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 public class RoleDto {
@@ -21,12 +22,18 @@ public class RoleDto {
         this.id = id;
     }
 
+    // Оригинальное имя роли, например "ROLE_ADMIN"
     public String getName() {
-        return name.replace("ROLE_", "");
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @JsonProperty("displayName")
+    public String getDisplayName() {
+        return name != null ? name.replace("ROLE_", "") : "";
     }
 
     @Override

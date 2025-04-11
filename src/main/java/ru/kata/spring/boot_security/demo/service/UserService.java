@@ -17,4 +17,6 @@ public interface UserService {
     void register(UserFormDto dto);
 
     List<UserDto> findByRole(String roleName);
+
+    UserDto getByEmail(String name);
 }
