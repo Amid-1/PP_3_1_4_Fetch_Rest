@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -32,6 +33,7 @@ public class SecurityConfig {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/api/user/current").authenticated()
                 .antMatchers("/login", "/error").permitAll()
                 .antMatchers("/api/**").hasRole("ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
@@ -45,7 +47,8 @@ public class SecurityConfig {
                 .successHandler(loginSuccessHandler)
                 .permitAll()
                 .and()
-                .logout().permitAll();
+                .logout()
+                .permitAll();
 
         return http.build();
     }
