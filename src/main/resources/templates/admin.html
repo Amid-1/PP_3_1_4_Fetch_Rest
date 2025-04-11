@@ -12,7 +12,6 @@
     <div class="container mt-4">
         <h2>Admin panel</h2>
 
-        <!-- Блок ошибок -->
         <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
 
         <div class="mb-3">
@@ -68,7 +67,128 @@
         </div>
     </div>
 
+    <!-- Modal: Confirm Delete -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите удаление</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Вы уверены, что хотите удалить пользователя?</p>
+                        <input type="text" id="deleteUsername" class="form-control mb-2" placeholder="First name" disabled />
+                        <input type="text" id="deleteLastName" class="form-control mb-2" placeholder="Last name" disabled />
+                        <input type="email" id="deleteEmail" class="form-control mb-2" placeholder="Email" disabled />
+                        <select id="deleteRoleSelect" multiple class="form-select" disabled></select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button id="confirmDeleteBtn" type="button" class="btn btn-danger">Удалить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal: Edit User -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editUserForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" name="username" class="form-control mb-2" placeholder="First name" required />
+                        <input type="text" name="lastName" class="form-control mb-2" placeholder="Last name" required />
+                        <input type="email" name="email" class="form-control mb-2" placeholder="Email" required />
+                        <input type="password" name="password" class="form-control mb-2" placeholder="New password" />
+                        <select name="roleIds" multiple class="form-select" id="editRoleSelect"></select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let userIdToDelete = null;
+        let editUserId = null;
+
+        function showDeleteModal(id) {
+            userIdToDelete = id;
+            const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            modal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+            const response = await fetch(`/api/users/${userIdToDelete}`, { method: 'DELETE' });
+            bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal')).hide();
+            await loadUsers();
+        });
+
+        async function editUser(id) {
+            editUserId = id;
+            const response = await fetch(`/api/users/${id}`);
+            const user = await response.json();
+
+            const form = document.getElementById('editUserForm');
+            form.username.value = user.firstName;
+            form.lastName.value = user.lastName;
+            form.email.value = user.email;
+            form.password.value = '';
+
+            const rolesResponse = await fetch('/api/roles');
+            const roles = await rolesResponse.json();
+            const select = document.getElementById('editRoleSelect');
+            select.innerHTML = '';
+
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.text = role.name.replace('ROLE_', '');
+                if (user.roleIds.includes(role.id)) option.selected = true;
+                select.appendChild(option);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            modal.show();
+        }
+
+        document.getElementById('editUserForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.target;
+
+            const user = {
+                username: form.username.value,
+                lastName: form.lastName.value,
+                email: form.email.value,
+                password: form.password.value,
+                roleIds: Array.from(form.roleIds.selectedOptions).map(o => Number(o.value))
+            };
+
+            const response = await fetch(`/api/users/${editUserId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                await loadUsers();
+            } else {
+                const error = await response.text();
+                showError('Ошибка при редактировании: ' + error);
+            }
+        });
+
         async function loadUsers() {
             const response = await fetch('/api/users');
             const users = await response.json();
@@ -99,7 +219,7 @@
                 <td>${user.email}</td>
                 <td>${user.roles.map(r => r.name).join(', ')}</td>
                 <td><button class="btn btn-info btn-sm" onclick="editUser(${user.id})">Edit</button></td>
-                <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Delete</button></td>
+                <td><button class="btn btn-danger btn-sm" onclick="showDeleteModal(${user.id})">Delete</button></td>
             `;
                 tableBody.appendChild(row);
             });
@@ -166,102 +286,6 @@
             }
         }
 
-        async function editUser(id) {
-            const existingModal = document.getElementById('editUserModal');
-            if (existingModal) existingModal.remove();
-
-            const response = await fetch(`/api/users/${id}`);
-            const user = await response.json();
-
-            const modalHtml = `
-        <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <form id="editUserForm" onsubmit="submitEditUser(event, ${user.id})">
-                <div class="modal-header">
-                  <h5 class="modal-title">Edit User</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                  <input type="text" name="username" value="${user.firstName}" class="form-control mb-2" required />
-                  <input type="text" name="lastName" value="${user.lastName}" class="form-control mb-2" required />
-                  <input type="email" name="email" value="${user.email}" class="form-control mb-2" required />
-                  <input type="password" name="password" class="form-control mb-2" placeholder="New password" />
-                  <select name="roleIds" multiple class="form-select" id="editRoleSelect"></select>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Save changes</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>`;
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-            const roleResponse = await fetch('/api/roles');
-            const roles = await roleResponse.json();
-            const select = document.getElementById('editRoleSelect');
-
-            roles.forEach(role => {
-                const option = document.createElement('option');
-                option.value = role.id;
-                option.text = role.name.replace('ROLE_', '');
-                if (user.roleIds.includes(role.id)) option.selected = true;
-                select.appendChild(option);
-            });
-
-            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
-            modal.show();
-
-            document.getElementById('editUserModal').addEventListener('hidden.bs.modal', () => {
-                document.getElementById('editUserModal').remove();
-            });
-        }
-
-        async function submitEditUser(event, id) {
-            event.preventDefault();
-            const form = event.target;
-            const formData = new FormData(form);
-
-            const user = {
-                username: formData.get('username'),
-                lastName: formData.get('lastName'),
-                email: formData.get('email'),
-                password: formData.get('password'),
-                roleIds: Array.from(formData.getAll('roleIds')).map(Number)
-            };
-
-            const response = await fetch(`/api/users/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(user)
-            });
-
-            if (response.ok) {
-                await loadUsers();
-                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
-                document.getElementById('editUserModal').remove();
-            } else {
-                const error = await response.text();
-                showError('Ошибка при редактировании: ' + error);
-            }
-        }
-
-        async function deleteUser(id) {
-            const confirmed = confirm("Вы уверены, что хотите удалить пользователя?");
-            if (!confirmed) return;
-
-            const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-
-            if (response.ok) {
-                await loadUsers();
-            } else {
-                const error = await response.text();
-                showError('Ошибка при удалении: ' + error);
-            }
-        }
-
         document.addEventListener("DOMContentLoaded", async () => {
             const filter = new URLSearchParams(window.location.search).get('filter');
             if (filter && filter !== 'new') {
@@ -271,7 +295,6 @@
             }
         });
     </script>
-
 </section>
 </body>
 </html>
