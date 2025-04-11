@@ -1,5 +1,7 @@
 package ru.kata.spring.boot_security.demo.dto;
 
+import ru.kata.spring.boot_security.demo.validation.Marker;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -7,9 +9,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class UserFormCreateDto {
+
     private Long id;
 
-    @NotBlank(message = "Имя не может быть пустым")
+    @NotBlank(message = "Имя не может быть пустым", groups = Marker.OnCreate.class)
     private String username;
 
     @NotBlank(message = "Фамилия не может быть пустой")
@@ -19,8 +22,8 @@ public class UserFormCreateDto {
     @Email(message = "Некорректный email")
     private String email;
 
-    @NotBlank(message = "Пароль обязателен")
-    @Size(min = 3, message = "Пароль должен быть не менее 3 символов")
+    @Size(min = 3, message = "Пароль должен быть не менее 3 символов", groups = Marker.OnCreate.class)
+    @NotBlank(message = "Пароль обязателен", groups = Marker.OnCreate.class)
     private String password;
 
     private List<Long> roleIds;
