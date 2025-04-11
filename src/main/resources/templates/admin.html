@@ -122,10 +122,32 @@
         let userIdToDelete = null;
         let editUserId = null;
 
-        function showDeleteModal(id) {
+        async function showDeleteModal(id) {
             userIdToDelete = id;
+
+            const response = await fetch(`/api/users/${id}`);
+            const user = await response.json();
+
+            fillDeleteModal(user);
+
             const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
             modal.show();
+        }
+
+        function fillDeleteModal(user) {
+            document.getElementById('deleteUsername').value = user.firstName;
+            document.getElementById('deleteLastName').value = user.lastName;
+            document.getElementById('deleteEmail').value = user.email;
+
+            const select = document.getElementById('deleteRoleSelect');
+            select.innerHTML = '';
+            user.roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.text = role.name.replace('ROLE_', '');
+                option.selected = true;
+                select.appendChild(option);
+            });
         }
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
@@ -295,6 +317,7 @@
             }
         });
     </script>
+
 </section>
 </body>
 </html>
