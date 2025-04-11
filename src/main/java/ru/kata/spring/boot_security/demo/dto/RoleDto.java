@@ -22,7 +22,6 @@ public class RoleDto {
         this.id = id;
     }
 
-    // Оригинальное имя роли, например "ROLE_ADMIN"
     public String getName() {
         return name;
     }

@@ -33,8 +33,8 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login", "/error").permitAll()
-                .antMatchers("/api/**").hasRole("ADMIN") //  Защита всех API
-                .antMatchers("/admin/**").hasRole("ADMIN")  // Доступ для admin
+                .antMatchers("/api/**").hasRole("ADMIN")
+                .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
                 .and()

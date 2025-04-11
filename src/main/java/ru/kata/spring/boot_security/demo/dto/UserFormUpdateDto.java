@@ -1,7 +1,6 @@
 package ru.kata.spring.boot_security.demo.dto;
 
 import ru.kata.spring.boot_security.demo.validation.Marker;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
