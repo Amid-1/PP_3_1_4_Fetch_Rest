@@ -6,6 +6,17 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+# Gradle-specific
+.gradle/
+build/
+*.bin
+*.lock
+!gradle/wrapper/gradle-wrapper.jar
+/.idea
+# Gradle wrapper files (ignore in submodules if present)
+gradle-wrapper.jar
+gradle-wrapper.properties
+
 lib/
 
 /.idea
@@ -17,6 +28,9 @@ lib/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+# SonarLint caches and temporary files
+.idea/sonarlint/
 
 ### STS ###
 .apt_generated
@@ -42,6 +56,47 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+
+# IntelliJ IDEA shelf files
+.idea/shelf/
+
+# IntelliJ workspace and UI Designer
+.idea/workspace.xml
+.idea/uiDesigner.xml
+
+# Build directories for individual microservices
+services/*/build/
+
+# Ignore local compiled classes and binaries
+target/
+out/
+
+# Logs and temporary files
+logs/
+*.log
+*.tmp
+*.bak
+
+# Docker-related files
+docker/*.log
+docker/*.tmp
+docker-compose*.log
+docker-compose*.tmp
+
+# Miscellaneous system files
+.DS_Store
+Thumbs.db
+*.patch
+*.xml
+
+# Database information
+.env.example
+.env.local
+#эти файлы только для примера- example, и локальной настройки, должны оставаться в игноре
+
+# Игнорирование локальных файлов конфигурации
+**/src/main/resources/application-local.yml
+
 
 ### Eclipse ###
 .apt_generated
